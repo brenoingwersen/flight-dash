@@ -1,6 +1,7 @@
 # Main
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
+from starlette.responses import Response
 from starlette import status
 from fastapi import HTTPException
 
@@ -45,18 +46,6 @@ async def get_flights():
     return {"flights": FLIGHTS}
 
 
-@router.get("/{flight_id}", response_model=GetFlightSchema)
-async def get_flight(flight_id: UUID):
-    """
-    Endpoint to get a flight.
-    """
-    for flight in FLIGHTS:
-        if flight["flight_id"] == flight_id:
-            return flight
-    raise HTTPException(status_code=404, 
-                        detail=f"Flight with ID {flight_id} not found.")
-
-
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              response_model=GetFlightSchema)
@@ -70,3 +59,45 @@ async def create_flight(payload: CreateFlightSchema):
     # Append to the flights list
     FLIGHTS.append(flight)
     return flight
+
+
+@router.get("/{flight_id}", response_model=GetFlightSchema)
+async def get_flight(flight_id: UUID):
+    """
+    Endpoint to get a flight.
+    """
+    for flight in FLIGHTS:
+        if flight["flight_id"] == flight_id:
+            return flight
+    raise HTTPException(status_code=404,
+                        detail=f"Flight with ID {flight_id} not found.")
+
+
+@router.put("/{flight_id}",
+            response_model=GetFlightSchema)
+def update_flight(flight_id: UUID,
+                  payload: CreateFlightSchema):
+    """
+    Endpoint for updating a flight.
+    """
+    for flight in FLIGHTS:
+        if flight["flight_id"] == flight_id:
+            flight.update(payload.model_dump())
+            return flight
+    raise HTTPException(status_code=404,
+                        detail=f"Flight with ID {flight_id} not found.")
+
+
+@router.delete("/{flight_id}",
+               status_code=status.HTTP_204_NO_CONTENT,
+               response_class=Response)
+def delete_flight(flight_id: UUID):
+    """
+    Endpoint for deleting a flight.
+    """
+    for index, flight in enumerate(FLIGHTS):
+        if flight["flight_id"] == flight_id:
+            FLIGHTS.pop(index)
+            return Response(status_code=204)
+    raise HTTPException(status_code=404,
+                        detail=f"Flight with ID {flight_id} not found.")
