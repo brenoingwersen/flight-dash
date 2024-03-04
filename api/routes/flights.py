@@ -1,7 +1,14 @@
+# Main
 from fastapi import APIRouter, Depends
-from schemas.flights import GetFlightsSchema
+from starlette.requests import Request
+
+# Schcmeas
+from schemas.flights import GetFlightSchema, GetFlightsSchema, CreateFlightSchema
+
+# Utils
 from uuid import uuid4
 from datetime import datetime
+from loguru import logger
 
 
 router = APIRouter()
@@ -30,5 +37,19 @@ FLIGHTS = [
 @router.get("/", response_model=GetFlightsSchema)
 async def get_flights():
     """
+    Endpoint to list all flights.
     """
     return {"flights": FLIGHTS}
+
+
+@router.post("/", response_model=GetFlightSchema)
+async def create_flight(payload: CreateFlightSchema):
+    """
+    Endpoint to create a new flight.
+    """
+    flight = payload.model_dump()
+    # Add an uuid to the flight
+    flight.update({"flight_id": uuid4()})
+    # Append to the flights list
+    FLIGHTS.append(flight)
+    return flight
