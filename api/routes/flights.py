@@ -1,12 +1,14 @@
 # Main
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
+from starlette import status
+from fastapi import HTTPException
 
 # Schcmeas
 from schemas.flights import GetFlightSchema, GetFlightsSchema, CreateFlightSchema
 
 # Utils
-from uuid import uuid4
+from uuid import UUID, uuid4
 from datetime import datetime
 from loguru import logger
 
@@ -17,10 +19,10 @@ router = APIRouter()
 # Hardcoded flights
 FLIGHTS = [
     {
-        "flight_id": uuid4(),
-        "airline_id": uuid4(), # Foreign Key
-        "origin_airport_id": uuid4(), # Foreign Key
-        "destination_airport_id": uuid4(), # Foreign Key
+        "flight_id": UUID("b0b697b5-f8c8-4901-9812-b1092bbb8881"),
+        "airline_id": uuid4(),  # Foreign Key
+        "origin_airport_id": uuid4(),  # Foreign Key
+        "destination_airport_id": uuid4(),  # Foreign Key
         "scheduled_departure": datetime(2024, 1, 1, hour=0, minute=0, second=0),
         "scheduled_arrival": datetime(2024, 1, 1, hour=4, minute=20, second=0),
         "arrival_delay": 10,
@@ -34,6 +36,7 @@ FLIGHTS = [
     }
 ]
 
+
 @router.get("/", response_model=GetFlightsSchema)
 async def get_flights():
     """
@@ -42,7 +45,21 @@ async def get_flights():
     return {"flights": FLIGHTS}
 
 
-@router.post("/", response_model=GetFlightSchema)
+@router.get("/{flight_id}", response_model=GetFlightSchema)
+async def get_flight(flight_id: UUID):
+    """
+    Endpoint to get a flight.
+    """
+    for flight in FLIGHTS:
+        if flight["flight_id"] == flight_id:
+            return flight
+    raise HTTPException(status_code=404, 
+                        detail=f"Flight with ID {flight_id} not found.")
+
+
+@router.post("/",
+             status_code=status.HTTP_201_CREATED,
+             response_model=GetFlightSchema)
 async def create_flight(payload: CreateFlightSchema):
     """
     Endpoint to create a new flight.
