@@ -13,11 +13,10 @@ class Status(Enum):
     diverted = "diverted"
 
 
-class FlightSchema(BaseModel):
-    flight_id: UUID
-    airline_id: UUID # Foreign Key
-    origin_airport_id: UUID # Foreign Key
-    destination_airport_id: UUID # Foreign Key
+class CreateFlightSchema(BaseModel):
+    airline_id: UUID # Foreign key
+    origin_airport_id: UUID # Foreign key
+    destination_airport_id: UUID # Foreign key
     scheduled_departure: datetime
     scheduled_arrival: datetime
     arrival_delay: int
@@ -30,5 +29,9 @@ class FlightSchema(BaseModel):
     weather_delay: bool
 
 
+class GetFlightSchema(CreateFlightSchema):
+    flight_id: UUID # Primary key
+
+
 class GetFlightsSchema(BaseModel):
-    flights: List[FlightSchema]
+    flights: List[GetFlightSchema]
