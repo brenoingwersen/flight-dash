@@ -8,9 +8,11 @@ RUN pip install -U pip && pip install pipenv
 
 COPY Pipfile Pipfile.lock /api/
 
+# --system tells Docker to install the dependencies system-wide instead of in a venv. It's more efficient since containers are already isolated
+# --deploy tells Pipenv to install the exact versions of the dependencies.
 RUN pipenv install --system --deploy
 
-COPY . /api/
+COPY . .
 
 EXPOSE 8000
 
