@@ -9,6 +9,7 @@ uvicorn = "*"
 loguru = "*"
 pytest = "*"
 httpx = "*"
+pandas = "*"
 
 [dev-packages]
 
