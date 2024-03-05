@@ -17,6 +17,7 @@ class CreateFlightSchema(BaseModel):
     airline_id: UUID # Foreign key
     origin_airport_id: UUID # Foreign key
     destination_airport_id: UUID # Foreign key
+    distance: int
     scheduled_departure: datetime
     scheduled_arrival: datetime
     arrival_delay: int
