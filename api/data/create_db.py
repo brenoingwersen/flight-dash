@@ -37,7 +37,8 @@ with ZipFile("data.zip", "r") as zf:
         dtype = {k.upper(): v for k, v in dtype.items()}
         flights_df = pd.read_csv(flights_path,
                                  usecols=usecols,
-                                 dtype=dtype)
+                                 dtype=dtype,
+                                 nrows=1000)
 
 # Lowercasing the columns names
 airlines_df.columns = [col.lower() for col in airlines_df.columns]
