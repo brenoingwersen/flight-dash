@@ -153,7 +153,7 @@ def join_dataframes(flights_df: pd.DataFrame,
                             validate="many_to_one")
     flights_copy.drop(
         columns=["airline", "origin_airport", "destination_airport"])
-    return flights_copy[["airline_id", "origin_airport_id", "destination_airport_id",
+    return flights_copy[["flight_id", "airline_id", "origin_airport_id", "destination_airport_id",
                          "distance", "scheduled_departure", "scheduled_arrival",
                          "arrival_delay", "status", "cancellation_reason",
                          "air_system_delay", "security_delay", "airline_delay",
