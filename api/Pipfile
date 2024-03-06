@@ -10,6 +10,9 @@ loguru = "*"
 pytest = "*"
 httpx = "*"
 pandas = "*"
+pydantic-settings = "*"
+sqlalchemy = "*"
+databases = "*"
 
 [dev-packages]
 
