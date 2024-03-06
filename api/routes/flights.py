@@ -4,6 +4,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette import status
 from fastapi import HTTPException
+from repository.flights_repository import FlightsRepository
+from repository.unit_of_work import UnitOfWork
 
 # Schcmeas
 from schemas.flights import GetFlightSchema, GetFlightsSchema, CreateFlightSchema
@@ -66,11 +68,14 @@ async def get_flight(flight_id: UUID):
     """
     Endpoint to get a flight.
     """
-    for flight in FLIGHTS:
-        if flight["flight_id"] == flight_id:
-            return flight
-    raise HTTPException(status_code=404,
-                        detail=f"Flight with ID {flight_id} not found.")
+    try:
+        with UnitOfWork() as unit_of_work:
+            flights_repo = FlightsRepository(unit_of_work.session)
+            flight = flights_repo.get(str(flight_id))
+        return flight.dict()
+    except:
+        raise HTTPException(status_code=404,
+                            detail=f"Flight with ID {flight_id} not found.")
 
 
 @router.put("/{flight_id}",
