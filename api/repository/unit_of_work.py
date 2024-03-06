@@ -2,7 +2,6 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
 # Database url
 DATABASE_URL = os.getenv("DATABASE_URL")
 connect_args = {}
@@ -11,19 +10,21 @@ if not DATABASE_URL:
     # Prevents SQLite to share the same connection for different requests
     connect_args.update({"check_same_thread": False})
 
-# SQLAlchemy
+# SQLAlchemy engine
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+# Create a sessionmaker to create a session
+SessionLocal = sessionmaker(autocommit=False,
+                            autoflush=False,
+                            bind=engine)
 
 
 class UnitOfWork:
     """
     Unit of Work pattern.
     """
-    def __init__(self):
-        self.session_maker = sessionmaker(bind=engine)
-
     def __enter__(self):
-        self.session = self.session_maker()
+        self.session = SessionLocal()
         return self
     
     def __exit__(self, exc_type, exc_val, traceback):
