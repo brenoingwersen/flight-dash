@@ -1,4 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
+from models.base import Base
 from sqlalchemy import (Column,
                         Integer,
                         String,
@@ -10,9 +10,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from typing import Dict
 from uuid import uuid4
 from schemas.flights import Status
-
-
-Base = declarative_base()
 
 
 class FlightModel(Base):
