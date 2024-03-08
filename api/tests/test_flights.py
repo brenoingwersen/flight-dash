@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime
 
 
-def test_get_flights(test_app):
+def test_get_flights(test_app, sample_flight_data):
     """
     Test GET flights endpoint
     """
@@ -10,14 +10,15 @@ def test_get_flights(test_app):
     assert response.status_code == 200
 
     flights = response.json()["flights"]
-    assert UUID(flights[0]["flight_id"]) == UUID("b0b697b5-f8c8-4901-9812-b1092bbb8881")
+    assert UUID(flights[0]["flight_id"]) == UUID(
+        sample_flight_data["flight_id"])
 
 
-def test_get_flight(test_app):
+def test_get_flight(test_app, sample_flight_data):
     """
     Test GET flight endpoint
     """
-    flight_id = "b0b697b5-f8c8-4901-9812-b1092bbb8881"
+    flight_id = sample_flight_data["flight_id"]
     response = test_app.get(f"/flights/{flight_id}")
     assert response.status_code == 200
 
@@ -25,70 +26,42 @@ def test_get_flight(test_app):
     assert UUID(flight["flight_id"]) == UUID(flight_id)
 
 
-def test_post_flight(test_app):
+def test_post_flight(test_app, sample_flight_data):
     """
     Test POST flight endpoint
     """
-    flight_data = {
-            "airline_id": "0a182982-e0ec-44d2-9c8a-fdb01c7a878c",
-            "origin_airport_id": "2ca1504e-03bc-489d-a371-28861ce1769f",
-            "destination_airport_id": "91a587e1-58f1-4281-ba34-5270f66db0ca",
-            "distance": 0,
-            "scheduled_departure": "2024-03-07T21:09:35.203Z",
-            "scheduled_arrival": "2024-03-07T21:09:35.203Z",
-            "arrival_delay": 10,
-            "status": "landed",
-            "cancellation_reason": "String",
-            "air_system_delay": True,
-            "security_delay": False,
-            "airline_delay": False,
-            "late_aircraft_delay": True,
-            "weather_delay": False
-    }
+    flight_id = sample_flight_data.pop("flight_id")
     # Check POST request
-    response = test_app.post("/flights/", json=flight_data)
+    response = test_app.post("/flights/",
+                             json=sample_flight_data)
     assert response.status_code == 201
-    
+
     # Get flight_id and search for it in the db
-    flight_id = response.json()["flight_id"]
-    response = test_app.get(f"/flights/{flight_id}")
-    # Check if status code 
+    new_flight_id = response.json()["flight_id"]
+    response = test_app.get(f"/flights/{new_flight_id}")
+    # Check if status code
     # and flight added to the test.db
     assert response.status_code == 200
-    assert UUID(response.json()["flight_id"]) == UUID(flight_id)
+    assert UUID(response.json()["flight_id"]) == UUID(new_flight_id)
 
 
-def test_delete_flight(test_app):
+def test_delete_flight(test_app, sample_flight_data):
     """
     Test DELETE flight endpoint.
     """
-    flight_id = "b0b697b5-f8c8-4901-9812-b1092bbb8881"
+    flight_id = sample_flight_data["flight_id"]
     response = test_app.delete(f"/flights/{flight_id}")
     assert response.status_code == 204
 
 
-def test_put_flight(test_app):
+def test_put_flight(test_app, sample_flight_data):
     """
     Test PUT flight endpoint.
     """
-    flight_id = "b0b697b5-f8c8-4901-9812-b1092bbb8881"
-    flight_data = {
-            "airline_id": "0a182982-e0ec-44d2-9c8a-fdb01c7a878c",
-            "origin_airport_id": "2ca1504e-03bc-489d-a371-28861ce1769f",
-            "destination_airport_id": "91a587e1-58f1-4281-ba34-5270f66db0ca",
-            "distance": 1,
-            "scheduled_departure": "2024-03-07T21:09:35.203Z",
-            "scheduled_arrival": "2024-03-07T21:09:35.203Z",
-            "arrival_delay": 10,
-            "status": "landed",
-            "cancellation_reason": "String",
-            "air_system_delay": True,
-            "security_delay": False,
-            "airline_delay": False,
-            "late_aircraft_delay": True,
-            "weather_delay": False
-    }
-    response = test_app.put(f"/flights/{flight_id}", 
-                               json=flight_data)
+    flight_id = sample_flight_data.pop("flight_id")
+    # Update any property
+    sample_flight_data.update({"distance": 1})
+    response = test_app.put(f"/flights/{flight_id}",
+                            json=sample_flight_data)
     assert response.status_code == 201
     assert response.json()["distance"] == 1
