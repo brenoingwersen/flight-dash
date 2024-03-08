@@ -6,14 +6,9 @@ os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 import pytest
 from tests.init_test_db import init_test_db
 from starlette.testclient import TestClient
-from loguru import logger
 
 # App
 from main import app
-
-# Utils
-from uuid import UUID
-from datetime import datetime
 
 
 @pytest.fixture(scope="function")
