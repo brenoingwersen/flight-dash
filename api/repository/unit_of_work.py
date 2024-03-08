@@ -1,6 +1,8 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
+
 
 # Database url
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -11,7 +13,15 @@ if not DATABASE_URL:
     connect_args.update({"check_same_thread": False})
 
 # SQLAlchemy engine
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+# Test mode
+if bool(str(os.getenv("TEST_MODE")).title()):
+    # NullPool opens and closes the underlying DB-API connection per each connection open/close.
+    engine = create_engine(DATABASE_URL, 
+                           poolclass=NullPool,
+                           connect_args=connect_args)
+else:
+    engine = create_engine(DATABASE_URL,
+                           connect_args=connect_args)
 
 # Create a sessionmaker to create a session
 SessionLocal = sessionmaker(autocommit=False,
