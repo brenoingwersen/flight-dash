@@ -4,7 +4,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette import status
 from fastapi import HTTPException
-from repository.flights_repository import FlightsRepository
+from repository.flights import FlightsRepository
 from repository.unit_of_work import UnitOfWork
 
 # Schcmeas
