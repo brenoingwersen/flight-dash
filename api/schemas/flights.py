@@ -14,9 +14,9 @@ class Status(Enum):
 
 
 class CreateFlightSchema(BaseModel):
-    airline_id: UUID # Foreign key
-    origin_airport_id: UUID # Foreign key
-    destination_airport_id: UUID # Foreign key
+    airline_id: UUID  # Foreign key
+    origin_airport_id: UUID  # Foreign key
+    destination_airport_id: UUID  # Foreign key
     distance: int
     scheduled_departure: datetime
     scheduled_arrival: datetime
@@ -31,7 +31,7 @@ class CreateFlightSchema(BaseModel):
 
 
 class GetFlightSchema(CreateFlightSchema):
-    flight_id: UUID # Primary key
+    flight_id: UUID  # Primary key
 
 
 class GetFlightsSchema(BaseModel):
