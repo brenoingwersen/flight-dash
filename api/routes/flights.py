@@ -66,6 +66,7 @@ async def get_flight(flight_id: UUID):
 
 
 @router.put("/{flight_id}",
+            status_code=status.HTTP_201_CREATED,
             response_model=GetFlightSchema)
 async def update_flight(flight_id: UUID,
                         payload: CreateFlightSchema) -> Dict:
