@@ -21,7 +21,7 @@ router = APIRouter()
 
 @router.get("/", response_model=GetAirlinesSchema)
 async def get_airlines(session: SessionDep,
-                       limit: Optional[int]) -> Dict[str, List]:
+                       limit: int=10) -> Dict[str, List]:
     """
     GET endpoint for retrieving airlines.
     """

@@ -21,7 +21,7 @@ router = APIRouter()
 
 @router.get("/", response_model=GetFlightsSchema)
 async def get_flights(session: SessionDep, 
-                      limit: Optional[int] = None) -> Dict[str, List]:
+                      limit: int=10) -> Dict[str, List]:
     """
     Endpoint to list all flights.
     """
