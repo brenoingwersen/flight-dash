@@ -1,14 +1,39 @@
-from typing import Dict
+from typing import Dict, Generator
 import os
-os.environ["TEST_MODE"] = "True"
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
-
 import pytest
 from tests.init_test_db import init_test_db
 from starlette.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import NullPool
 
 # App
 from main import app
+from deps import get_db
+
+# db session maker
+SQLALCHEMY_TEST_DB_URI = "sqlite:///./test.db"
+engine = create_engine(SQLALCHEMY_TEST_DB_URI, poolclass=NullPool)
+SessionLocal = sessionmaker(bind=engine)
+
+def get_test_db() -> Generator[Session, None, None]:
+    """
+    Dependency for generating sessions.
+    """
+    session = SessionLocal()
+
+    try:
+        yield session
+    except:
+        # If any exceptions then rollback
+        session.rollback()
+        raise
+    finally:
+        # Always close the session
+        session.close()
+
+# Inject engine dependency
+app.dependency_overrides[get_db] = get_test_db
 
 
 @pytest.fixture(scope="function")
@@ -34,10 +59,11 @@ def sample_flight_data() -> Dict:
             "weather_delay": False
     }
 
+
 @pytest.fixture(scope="function")
 def test_db(sample_flight_data):
-    db_url = os.getenv("DATABASE_URL")
-    init_test_db(db_url, [sample_flight_data])
+    init_test_db(SQLALCHEMY_TEST_DB_URI,
+                 [sample_flight_data])
 
     yield 
     
