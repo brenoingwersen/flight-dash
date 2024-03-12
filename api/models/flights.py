@@ -10,13 +10,16 @@ from sqlalchemy.dialects.postgresql import UUID
 from typing import Dict
 from uuid import uuid4
 from schemas.flights import Status
+from sqlalchemy.orm import relationship
 
 
 class FlightModel(Base):
     __tablename__ = "flights"
 
     flight_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    airline_id = Column(UUID(as_uuid=True), default=uuid4)
+    airline_id = Column(UUID(as_uuid=True), 
+                        ForeignKey("airlines.airline_id"),
+                        default=uuid4)
     origin_airport_id = Column(UUID(as_uuid=True), default=uuid4)
     destination_airport_id = Column(UUID(as_uuid=True), default=uuid4)
     distance = Column(Integer, nullable=False)
@@ -30,6 +33,8 @@ class FlightModel(Base):
     airline_delay = Column(Boolean, nullable=False)
     late_aircraft_delay = Column(Boolean, nullable=False)
     weather_delay = Column(Boolean, nullable=False)
+
+    airline = relationship("AirlineModel", back_populates="flights")
 
     def dict(self) -> Dict:
         """

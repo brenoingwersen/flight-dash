@@ -1,6 +1,8 @@
 from models.base import Base
 from sqlalchemy import (Column,
-                        String)
+                        String,
+                        ForeignKey)
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from typing import Dict
 from uuid import uuid4
@@ -12,6 +14,10 @@ class AirlineModel(Base):
     airline_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     iata_code = Column(String, nullable=False)
     airline = Column(String, nullable=False)
+
+    flights = relationship("FlightModel",
+                           foreign_keys="FlightModel.airline_id",
+                           back_populates="airline")
 
     def dict(self) -> Dict:
         """
