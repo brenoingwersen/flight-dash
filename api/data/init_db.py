@@ -5,17 +5,20 @@ sys.path.append("/home/user/flight-dash/api")
 
 from typing import Generator, Iterable
 from data_preprocessing import (flights_df,
-                                airlines_df)
+                                airlines_df, 
+                                airports_df)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Schemas
 from schemas.flights import GetFlightSchema
 from schemas.airlines import GetAirlineSchema
+from schemas.airports import GetAirportSchema
 
 # Models
 from models.flights import FlightModel
 from models.airlines import AirlineModel
+from models.airports import AirportModel
 from models.base import Base
 
 
@@ -35,10 +38,12 @@ def init_db():
     # Pydantic validation
     valid_flight_data = [GetFlightSchema.model_validate(flight).model_dump() for flight in flights_df.to_dict(orient="records")]
     valid_airline_data = [GetAirlineSchema.model_validate(airline).model_dump() for airline in airlines_df.to_dict(orient="records")]
+    valid_airport_data = [GetAirportSchema.model_validate(airport).model_dump() for airport in airports_df.to_dict(orient="records")]
 
     # ORM
     flights = [FlightModel(**flight) for flight in valid_flight_data]
     airlines = [AirlineModel(**airline) for airline in valid_airline_data]
+    airports = [AirportModel(**airport) for airport in valid_airport_data]
 
     # Flights
     for batch in get_batches(flights):
@@ -49,6 +54,13 @@ def init_db():
 
     # Airlines
     for batch in get_batches(airlines):
+        with SessionLocal() as session:
+            session.bulk_save_objects(batch)
+            session.commit()
+        session.close()
+
+    # Airports
+    for batch in get_batches(airports):
         with SessionLocal() as session:
             session.bulk_save_objects(batch)
             session.commit()
