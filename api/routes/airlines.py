@@ -48,7 +48,7 @@ async def post_airline(session: SessionDep,
     return new_airline
 
 
-@router.get("/{airline_id}", response_model=GetAirlinesSchema)
+@router.get("/{airline_id}", response_model=GetAirlineSchema)
 async def get_airline(session: SessionDep,
                       airline_id: UUID) -> Dict:
     """
