@@ -20,8 +20,12 @@ class FlightModel(Base):
     airline_id = Column(UUID(as_uuid=True), 
                         ForeignKey("airlines.airline_id"),
                         default=uuid4)
-    origin_airport_id = Column(UUID(as_uuid=True), default=uuid4)
-    destination_airport_id = Column(UUID(as_uuid=True), default=uuid4)
+    origin_airport_id = Column(UUID(as_uuid=True),
+                               ForeignKey("airports.airport_id"),
+                               default=uuid4)
+    destination_airport_id = Column(UUID(as_uuid=True),
+                                    ForeignKey("airports.airport_id"),
+                                    default=uuid4)
     distance = Column(Integer, nullable=False)
     scheduled_departure = Column(DateTime, nullable=False)
     scheduled_arrival = Column(DateTime, nullable=False)
@@ -35,6 +39,12 @@ class FlightModel(Base):
     weather_delay = Column(Boolean, nullable=False)
 
     airline = relationship("AirlineModel", back_populates="flights")
+    origin_airport = relationship("AirportModel",
+                                  foreign_keys=[origin_airport_id],
+                                  back_populates="flights_as_origin")
+    destination_airport = relationship("AirportModel",
+                                       foreign_keys=[destination_airport_id],
+                                       back_populates="flights_as_destination")
 
     def dict(self) -> Dict:
         """
