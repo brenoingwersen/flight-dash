@@ -1,7 +1,5 @@
 import os
-from pathlib import Path
 import pandas as pd
-import sqlite3
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -166,22 +164,3 @@ airlines_df = airlines_preprocess(airlines_df)
 airports_df = airports_preprocess(airports_df)
 flights_df = flights_preprocess(flights_df)
 flights_df = join_dataframes(flights_df, airlines_df, airports_df)
-
-# Save to a SQLite .db file
-db_path = Path(__file__).parent / "../data.db"
-with sqlite3.connect(db_path) as conn:
-    # flights table
-    flights_df.to_sql(name="flights",
-                      con=conn,
-                      if_exists="replace",
-                      index=False)
-    # airlines table
-    airlines_df.to_sql(name="airlines",
-                       con=conn,
-                       if_exists="replace",
-                       index=False)
-    # airports table
-    airports_df.to_sql(name="airports",
-                       con=conn,
-                       if_exists="replace",
-                       index=False)
