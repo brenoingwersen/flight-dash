@@ -60,7 +60,7 @@ async def get_airline(session: SessionDep,
         return airline
     except NoResultFound:
         raise HTTPException(status_code=404,
-                            detail=f"airline with id {airline_id} not found.")
+                            detail=f"airline with ID {airline_id} not found.")
 
 
 @router.put("/{airline_id}",
