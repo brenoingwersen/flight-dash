@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 # Models
 from models.flights import FlightModel
 from models.airlines import AirlineModel
+from models.airports import AirportModel
 from models.base import Base
 
 # Schemas
