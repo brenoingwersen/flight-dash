@@ -17,7 +17,7 @@ class FlightModel(Base):
     __tablename__ = "flights"
 
     flight_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    airline_id = Column(UUID(as_uuid=True), 
+    airline_id = Column(UUID(as_uuid=True),
                         ForeignKey("airlines.airline_id"),
                         default=uuid4)
     origin_airport_id = Column(UUID(as_uuid=True),
@@ -51,3 +51,6 @@ class FlightModel(Base):
         Returns a dictionay representation of a flight.
         """
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
+
+from models.airports import AirportModel

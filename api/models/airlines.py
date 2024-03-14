@@ -16,7 +16,6 @@ class AirlineModel(Base):
     airline = Column(String, nullable=False)
 
     flights = relationship("FlightModel",
-                           foreign_keys="FlightModel.airline_id",
                            back_populates="airline")
 
     def dict(self) -> Dict:

@@ -1,5 +1,5 @@
 from models.base import Base
-from models.flights import FlightModel
+# from models.flights import FlightModel
 from sqlalchemy import (Column,
                         String,
                         Float,
@@ -23,10 +23,10 @@ class AirportModel(Base):
     longitude = Column(Float, nullable=False)
 
     flights_as_origin = relationship("FlightModel",
-                                     foreign_keys=[FlightModel.origin_airport_id],
+                                     foreign_keys="[FlightModel.origin_airport_id]",
                                      back_populates="origin_airport")
     flights_as_destination = relationship("FlightModel",
-                                          foreign_keys=[FlightModel.destination_airport_id],
+                                          foreign_keys="[FlightModel.destination_airport_id]",
                                           back_populates="destination_airport")
 
     def dict(self) -> Dict:
