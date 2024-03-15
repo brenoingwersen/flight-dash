@@ -1,15 +1,16 @@
-import sys
-sys.path.append("/home/user/flight-dash/api")
-
-
-from typing import Dict, Generator
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+
 import pytest
-from tests.init_test_db import init_test_db
-from starlette.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import NullPool
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import create_engine
+from starlette.testclient import TestClient
+from tests.init_test_db import init_test_db
+from typing import Dict, Generator, List
+
 
 # App
 from main import app
@@ -79,11 +80,42 @@ def sample_airline_data() -> Dict:
 
 
 @pytest.fixture(scope="function")
+def sample_airport_data() -> List[Dict]:
+    """
+    Returns a sample data for the airports model.
+    """
+    return [
+        {
+            "airport_id": "2ca1504e-03bc-489d-a371-28861ce1769f",
+            "iata_code": "TST",
+            "airport": "Origin test airport",
+            "city": "Test city",
+            "state": "Test state",
+            "country": "Test country",
+            "latitude": 12.345678,
+            "longitude": -12.345678
+        },
+        {
+            "airport_id": "91a587e1-58f1-4281-ba34-5270f66db0ca",
+            "iata_code": "TST",
+            "airport": "Destination test airport",
+            "city": "Test city",
+            "state": "Test state",
+            "country": "Test country",
+            "latitude": 12.345678,
+            "longitude": -12.345678
+        }
+    ]
+
+
+@pytest.fixture(scope="function")
 def test_db(sample_flight_data,
-            sample_airline_data):
+            sample_airline_data, 
+            sample_airport_data):
     init_test_db(SQLALCHEMY_TEST_DB_URI,
                  [sample_flight_data],
-                 [sample_airline_data])
+                 [sample_airline_data],
+                 sample_airport_data)
 
     yield
 
