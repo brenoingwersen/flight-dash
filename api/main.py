@@ -1,10 +1,14 @@
 from fastapi import FastAPI
+from core.config import settings
 from routes.flights import router as flights_router
 from routes.airlines import router as airlines_router
 
 
 # Instantiate the app
-app = FastAPI()
+app = FastAPI(title=settings.TITLE,
+              summary=settings.SUMMARY,
+              description=settings.DESCRIPTION, 
+              version=settings.VERSION)
 
 # Add the routes
 app.include_router(flights_router, prefix="/flights", tags=["flights"])

@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   api:
+    image: flight-dash-api:v0.1.0
     build: 
       context: ./api
       dockerfile: Dockerfile
