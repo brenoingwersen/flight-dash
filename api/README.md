@@ -4,12 +4,12 @@
 - [Docker](https://www.docker.com/).
 - [Pipenv](https://pipenv.pypa.io/en/latest/) for Python package and environment.
 
-## To-dos
+## To-dos ⛏
 - [x] Write basic endpoints for all models.
 - [ ] Complete unit tests.
 - [ ] Add custom endpoints for the frontend dashboard.
 
-## God-tier would-like
+## God-tier would-like 🧙‍♂️
 - [ ] Support authentication API to create users and manage permissions.
 
 ## Local development
