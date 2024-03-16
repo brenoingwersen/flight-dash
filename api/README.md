@@ -14,7 +14,7 @@
 
 ## Local development
 ### Using a local SQLite db file
-This section guides you through the process of downloading the flights data on Kaggle and creating a local SQLite db file with the data. In the production environment the database would be stored by a cloud provider and accessed using a [db connection string](https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls) provided in a `.env` file.
+This section guides you through the process of downloading the [flights data](https://www.kaggle.com/datasets/usdot/flight-delays) on Kaggle and creating a local SQLite db file with the data. *In the production environment the database would be stored by a cloud provider and accessed using a [db connection string](https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls) provided in a `.env` file.*
 
 1. Download the data and add the data.zip file to the `api/data/` directory:
 ```

@@ -22,12 +22,6 @@ git clone "https://github.com/brenoingwersen/flight-dash.git"
 cd flight-dash
 ```
 
-3. Install dependencies and run the virtual env using Pipenv:
-```bash
-pipenv install
-pipenv shell
-```
-
 ## Backend (In progress)
 Backend docs: [api/README.md](https://github.com/brenoingwersen/flight-dash/tree/main/api)
 
