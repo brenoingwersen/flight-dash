@@ -6,7 +6,7 @@
 
 ## To-dos ⛏
 - [x] Write basic endpoints for all models.
-- [ ] Complete unit tests.
+- [x] Complete unit tests.
 - [ ] Add custom endpoints for the frontend dashboard.
 
 ## God-tier would-like 🧙‍♂️
