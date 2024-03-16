@@ -7,6 +7,7 @@
 ## To-dos ⛏
 - [x] Write basic endpoints for all models.
 - [x] Complete unit tests.
+- [ ] Add DB migrations using Alembic.
 - [ ] Add custom endpoints for the frontend dashboard.
 
 ## God-tier would-like 🧙‍♂️
