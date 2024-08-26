@@ -39,6 +39,27 @@ Supported databases for local development:
 
 But first, we need to download the data. If you're planning to use your local PostgreSQL you can firstly refer to how to setup a database on your local postgresql on this [section](#setPostgres).
 
+After that you need to create a configuration file with environments varables called `.env`. The scripts will automatically parse the connection string configurations from the `.env` file.
+
+```
+# .env file example
+
+API_VERSION=0.1.0
+
+# Database type
+DATABASE_TYPE=postgresql # or sqlite
+DATABASE_NAME=flight-delays
+
+# sqlite .db file is created at /{DATABASE_NAME}.db
+
+# Postgres connection parameters
+POSTGRES_USER=postgres # The main user at your postgres app
+POSTGRES_PASSWORD=my_passord # Change it for the value you configured before
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=flight-delays # The database name
+```
+
 #### Getting the data using Kaggle API 🆕
 
 The new file `utils/kaggle_api.py` will use your Kaggle API credentials to fetch the .zip file with the data. Here's the step by step:
@@ -52,6 +73,8 @@ Basically you'll download a `kaggle.json` file with your profile configurations 
 ```
 pdm run python data/init_db.py
 ```
+
+Optionally you can specify the type of database you want to be created using the flag `--db-type sqlite` for example and <u>this will override</u> the default creation using PostgreSQL.
 
 The `init_db.py` file will check if the `.zip` file is already in the API folder structure (i.e. if it's been previously downloaded) and run the remaining preprocessing and database creation steps. Finally it'll create a SQLite database file `data.db`.
 
