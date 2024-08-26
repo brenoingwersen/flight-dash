@@ -4,10 +4,20 @@ from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 from datetime import timedelta
+from utils.kaggle_api import download_data
 
+
+current_path = os.getcwd()
+data_path = os.path.join(current_path, "flight-delays.zip")
+
+# Downloading data directly from Kaggle
+if not os.path.exists(data_path):
+    download_data()
+else:
+    print("Data already downloaded. Skipping Kaggle API call.")
 
 # Read the data
-with ZipFile("data.zip", "r") as zf:
+with ZipFile(data_path, "r") as zf:
     with TemporaryDirectory() as tempdir:
         # Extracts the zip file's content to a temporary directory
         zf.extractall(tempdir)
@@ -44,8 +54,6 @@ airports_df.columns = [col.lower() for col in airports_df.columns]
 flights_df.columns = [col.lower() for col in flights_df.columns]
 
 # Helper functions
-
-
 def generate_uuid() -> str:
     """
     Returns an uuid as string.
@@ -133,14 +141,16 @@ def join_dataframes(flights_df: pd.DataFrame,
     flights_copy = pd.merge(left=flights_copy,
                             right=airlines_ids,
                             left_on="airline",
-                            right_index=True, how="left",
+                            right_index=True, 
+                            how="inner",
                             validate="many_to_one")
 
     # Get origin_airport_id
     flights_copy = pd.merge(left=flights_copy,
                             right=airports_ids.rename("origin_airport_id"),
                             left_on="origin_airport",
-                            right_index=True, how="left",
+                            right_index=True, 
+                            how="inner",
                             validate="many_to_one")
 
     # Get destination_airport_id
@@ -148,7 +158,8 @@ def join_dataframes(flights_df: pd.DataFrame,
                             right=airports_ids.rename(
                                 "destination_airport_id"),
                             left_on="destination_airport",
-                            right_index=True, how="left",
+                            right_index=True, 
+                            how="inner",
                             validate="many_to_one")
     flights_copy.drop(
         columns=["airline", "origin_airport", "destination_airport"])

@@ -9,7 +9,7 @@ from routes.airports import router as airports_router
 app = FastAPI(title=settings.TITLE,
               summary=settings.SUMMARY,
               description=settings.DESCRIPTION, 
-              version=settings.VERSION)
+              version=settings.API_VERSION)
 
 # Add the routes
 app.include_router(flights_router, prefix="/flights", tags=["Flights"])

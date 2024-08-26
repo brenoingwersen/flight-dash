@@ -9,6 +9,7 @@ from data_preprocessing import (flights_df,
                                 airports_df)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import database_exists, create_database
 
 # Schemas
 from schemas.flights import GetFlightSchema
@@ -45,35 +46,68 @@ def init_db():
     airlines = [AirlineModel(**airline) for airline in valid_airline_data]
     airports = [AirportModel(**airport) for airport in valid_airport_data]
 
-    # Flights
-    for batch in get_batches(flights):
-        with SessionLocal() as session:
-            session.bulk_save_objects(batch)
-            session.commit()
-        session.close()
-
     # Airlines
     for batch in get_batches(airlines):
         with SessionLocal() as session:
             session.bulk_save_objects(batch)
             session.commit()
-        session.close()
 
     # Airports
     for batch in get_batches(airports):
         with SessionLocal() as session:
             session.bulk_save_objects(batch)
             session.commit()
-        session.close()
+
+    # Flights
+    # Populate flights table lastly
+    # since a flight needs to have an airline and airport
+    # already present in the db
+    for batch in get_batches(flights):
+        with SessionLocal() as session:
+            session.bulk_save_objects(batch)
+            session.commit()
 
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite:///../data.db")
+    import argparse
+    # Fetching the connection string for the database
+    from core.config import settings
 
-    # Create all tables using the models
-    Base.metadata.create_all(engine)
-    # Reusable session maker
-    SessionLocal = sessionmaker(bind=engine)
+
+    # Infering database type from arguments
+    # Overrides the DATABASE_TYPE environment variable
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--db-type",
+                      default=None,
+                      choices=["sqlite", "postgresql"],
+                      dest="DATABASE_TYPE")
+    args = parser.parse_args()
+    DATABASE_TYPE = args.DATABASE_TYPE
+
+    if DATABASE_TYPE == "sqlite":
+        connect_string = settings.SQLITE_DATABASE_URI
+        db_type = "sqlite"
+    elif DATABASE_TYPE == "sqlite":
+        connect_string = settings.POSTGRES_DATABASE_URI
+        db_type = "postgresql"
+    else:
+        connect_string = settings.SQLALCHEMY_DATABASE_URI
+        db_type = settings.DATABASE_TYPE
+
+    if not database_exists(connect_string):
+        print(f"Creating a {db_type} database")
+        create_database(connect_string)
+        print("Database created!")
     
-    # Initialize the database with the data
-    init_db()
+        engine = create_engine(connect_string)
+
+        # Create all tables using the models
+        Base.metadata.create_all(engine)
+        # Reusable session maker
+        SessionLocal = sessionmaker(bind=engine)
+        
+        # Initialize the database with the data
+        init_db()
+        print("Database populated!")
+    else:
+        print("Database already exists.")
