@@ -1,6 +1,7 @@
 # Data files
 *.zip
 *.db
+getting_data/
 
 # Git
 .git
@@ -16,6 +17,7 @@
 # Docker
 docker-compose.yml
 Dockerfile
+Dockerfile.*
 .docker
 .dockerignore
 

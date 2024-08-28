@@ -1,6 +1,7 @@
 # db stuff
 *.db
 *.zip
+pdata/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

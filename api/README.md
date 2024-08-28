@@ -29,40 +29,15 @@ cd api
 pdm install
 ```
 
-### Setting up a local database
+### Setting up a local PostgreSQL database
 
-This section goes through obtaining the dummy data from Kaggle and setting up a database instance to test the API.
-Supported databases for local development:
+This section goes through obtaining the dummy data from Kaggle and setting up a PostgreSQL database instance to test the API.
 
-- SQLite
-- PostgreSQL 🆕
-
-But first, we need to download the data. If you're planning to use your local PostgreSQL you can firstly refer to how to setup a database on your local postgresql on this [section](#setPostgres).
-
-After that you need to create a configuration file with environments varables called `.env`. The scripts will automatically parse the connection string configurations from the `.env` file.
-
-```
-# .env file example
-
-API_VERSION=0.1.0
-
-# Database type
-DATABASE_TYPE=postgresql # or sqlite
-DATABASE_NAME=flight-delays
-
-# sqlite .db file is created at /{DATABASE_NAME}.db
-
-# Postgres connection parameters
-POSTGRES_USER=postgres # The main user at your postgres app
-POSTGRES_PASSWORD=my_passord # Change it for the value you configured before
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=flight-delays # The database name
-```
+First you need to create a new database on your local PostgreSQL [section](#setPostgres).
 
 #### Getting the data using Kaggle API 🆕
 
-The new file `utils/kaggle_api.py` will use your Kaggle API credentials to fetch the .zip file with the data. Here's the step by step:
+The new file `getting_data/kaggle_api.py` will use your Kaggle API credentials to fetch the .zip file with the data. Here's the step by step:
 
 1. Configure the Kaggle API on your local computer: [Kaggle API](https://www.kaggle.com/docs/api).
 
@@ -71,24 +46,14 @@ Basically you'll download a `kaggle.json` file with your profile configurations 
 2. Simply run Python using pdm to access the virtual environment's dependencies:
 
 ```
-pdm run python data/init_db.py
+pdm run python getting_data/init_local_db.py
 ```
 
-Optionally you can specify the type of database you want to be created using the flag `--db-type sqlite` for example and <u>this will override</u> the default creation using PostgreSQL.
-
-The `init_db.py` file will check if the `.zip` file is already in the API folder structure (i.e. if it's been previously downloaded) and run the remaining preprocessing and database creation steps. Finally it'll create a SQLite database file `data.db`.
-
-```
-flights_dash
-├── api
-│   ├── utils/
-│   ├── data.db
-...
-```
+The Kaggle data will be downloaded and if you have correctly set up the PostgreSQL database from the last section then it'll have been populated with the data.
 
 #### Alternative: Manual download
 
-This section guides you through the process of downloading the [flights data](https://www.kaggle.com/datasets/usdot/flight-delays) on Kaggle and creating a local SQLite db file with the data. _In the production environment the database would be stored by a cloud provider and accessed using a [db connection string](https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls) provided in a `.env` file._
+This section guides you through the process of downloading the [flights data](https://www.kaggle.com/datasets/usdot/flight-delays) on Kaggle manually without the need of the Kaggle API credentials (You'd still need an account to get the data though).
 
 1. Download the data and add the `flight-delays.zip` file to the `api/` root directory:
 
@@ -102,37 +67,24 @@ flights_dash
 ...
 ```
 
-- `data_processing.py`: Python module that reads and preprocess the raw data.
-- `init_db.py`: Python module that creates the `data.db` file using the preprocessed data, SQLAlchemy models and Pydantic schemas.
-
 2. Simply run Python using pdm to access the virtual environment's dependencies:
 
 ```
-pdm run python utils/init_db.py
+pdm run python getting_data/init_local_db.py
 ```
 
-Now the backend folder should have a `data.db` file:
-
-```
-flights_dash
-├── api
-│   └── utils
-│   │   ├── data_processing.py
-│   │   └── init_db.py
-│   ├── flight-delays.zip
-│   ├── data.db
-...
-```
-
-### Run the backend API
+### Running the API using PDM
 
 This section goes through the steps to run the backend API.
 
-1. Check if you have uvicorn downloaded
+1. Create a `.env` file with your local PostgreSQL credentials and place it inside `/api`
 
 ```
-uvicorn --version # checks if uvicorn is available
-sudo apt install uvicorn # Installs uvicorn
+POSTGRES_DB=flight-delays
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=user
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
 ```
 
 2. Run the local server using pdm and uvicorn. Note: You can's simply call the command `uvicorn main:app --reload` because you need to run locally with the dependencies installed inside pdm's virtual environment.
@@ -142,6 +94,40 @@ pdm run uvicorn main:app --reload
 ```
 
 The server should be up now and the API doc (Open API Specification) should be available on http://localhost:8000/docs.
+
+### Run the API using Docker
+
+This section goes through setting up the API for local development using Docker and connecting to the <u>local PostgreSQL database</u>.
+
+If you're trying to run the API inside a container and connecting to your local PostgreSQL database, you need to allow the connection of the API through the Docker network which is often `172.17.0.1`. The new connection string will be:
+
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=my_passord
+POSTGRES_HOST=172.17.0.1
+POSTGRES_PORT=5432
+POSTGRES_DB=flight-delays
+```
+
+And you also need to make PostgreSQL accept connections locally from another host other than `127.0.0.1`. You can reference the following [guide](https://dev.to/21toffy/connect-to-locally-hosted-postgresql-from-a-docker-container-109o).
+
+After everything is set, you can setup the container running the next commands.
+
+1. Create the app image using the following command:
+
+```
+sudo docker image build -t flight-delays-api:latest -f Dockerfile.dev
+```
+
+The `-t` specifies the image tag and `-f` the Dockerfile to be run to create the image.
+
+2. Start the container
+
+```
+sudo docker container run -p 8000:8000 flight-delays-api
+```
+
+The `-p [host_port]:[container_port]` forwards container port to the host machine.
 
 ## Backend tests
 
@@ -195,7 +181,7 @@ Will display all your available databases.
 \dt
 ```
 
-6. Run a simple query to get the first 10 flights:
+6. Run a simple query to get the first 10 flights: (if you have already populated it...)
 
 ```
 SELECT * FROM flights LIMIT 10;

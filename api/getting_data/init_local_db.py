@@ -10,6 +10,7 @@ from data_preprocessing import (flights_df,
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
+from pydantic_core import MultiHostUrl
 
 # Schemas
 from schemas.flights import GetFlightSchema
@@ -69,33 +70,17 @@ def init_db():
 
 
 if __name__ == "__main__":
-    import argparse
-    # Fetching the connection string for the database
-    from core.config import settings
-
-
-    # Infering database type from arguments
-    # Overrides the DATABASE_TYPE environment variable
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--db-type",
-                      default=None,
-                      choices=["sqlite", "postgresql"],
-                      dest="DATABASE_TYPE")
-    args = parser.parse_args()
-    DATABASE_TYPE = args.DATABASE_TYPE
-
-    if DATABASE_TYPE == "sqlite":
-        connect_string = settings.SQLITE_DATABASE_URI
-        db_type = "sqlite"
-    elif DATABASE_TYPE == "sqlite":
-        connect_string = settings.POSTGRES_DATABASE_URI
-        db_type = "postgresql"
-    else:
-        connect_string = settings.SQLALCHEMY_DATABASE_URI
-        db_type = settings.DATABASE_TYPE
+    connect_string = MultiHostUrl.build(
+            scheme="postgresql+psycopg",
+            username="postgres",
+            password="user", # The password set when it was firstly configured
+            host="localhost",
+            port=5432,
+            path="flight-delays"
+        ).unicode_string()
 
     if not database_exists(connect_string):
-        print(f"Creating a {db_type} database")
+        print(f"Creating a new database")
         create_database(connect_string)
         print("Database created!")
     

@@ -1,19 +1,42 @@
-FROM python:3.10-slim
+# Setting the version of the Python image
+ARG PYTHON_BASE=3.10-slim
 
-RUN mkdir -p /api
+# Builder stage
+FROM python:$PYTHON_BASE as builder
+
+WORKDIR /build
+
+# Install dependencies needed for building the application
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Install PDM
+RUN pip install pdm
+
+# Copy dependencies list
+COPY pyproject.toml pdm.lock ./
+
+# Install dependencies using PDM
+RUN pdm install --prod --no-lock --no-editable
+
+# Run stage
+FROM python:$PYTHON_BASE
 
 WORKDIR /api
 
-RUN pip install -U pip && pip install pipenv
+# Retrieve dependencies from builder stage
+COPY --from=builder /build/.venv /api/.venv
 
-COPY Pipfile Pipfile.lock /api/
-
-# --system tells Docker to install the dependencies system-wide instead of in a venv. It's more efficient since containers are already isolated
-# --deploy tells Pipenv to install the exact versions of the dependencies.
-RUN pipenv install --system --deploy
-
+# Copy the rest of the application files
 COPY . .
+
+# Append the working dir to the PATH variable
+# Note: Even with the workdir set you need to specify the whole path
+ENV PATH="/api/.venv/bin:$PATH"
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+# We can't simply call CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Because when uvicorn is installed some system binaries are added to the PATH
+# else we need to let the terminal know about them through Python
+# Ref: https://stackoverflow.com/questions/59025891/uvicorn-is-not-working-when-called-from-the-terminal
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

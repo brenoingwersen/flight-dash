@@ -4,7 +4,7 @@ from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 from datetime import timedelta
-from utils.kaggle_api import download_data
+from getting_data.kaggle_api import download_data
 
 
 current_path = os.getcwd()
